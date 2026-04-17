@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { useToast } from '../components/Toast'
 import { exportNotes, downloadMd } from '../utils/markdown'
+import type { SectionProps } from '../types'
 
-export default function ContextNotes({ state, update }) {
+export default function ContextNotes({ state, update }: SectionProps) {
   const toast = useToast()
-  const [notes, setNotes] = useState(state.notes)
-  const notesRef = useRef(notes)
+  const [notes, setNotes] = useState<string>(state.notes)
+  const notesRef = useRef<string>(notes)
 
   useEffect(() => {
     notesRef.current = notes
   }, [notes])
 
   useEffect(() => {
-    function onKeyDown(e) {
+    function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault()
         update((s) => ({ ...s, notes: notesRef.current }))

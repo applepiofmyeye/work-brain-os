@@ -1,14 +1,22 @@
 import { useState } from 'react'
 import { useToast } from '../components/Toast'
+import type { SectionProps } from '../types'
 
-const EMPTY = { task: '', state: '', next: '' }
+interface SwitchForm {
+  task: string
+  state: string
+  next: string
+}
 
-export default function SwitchHelper({ state, update }) {
+const EMPTY: SwitchForm = { task: '', state: '', next: '' }
+
+export default function SwitchHelper({ state, update }: SectionProps) {
   const toast = useToast()
-  const [form, setForm] = useState(EMPTY)
+  const [form, setForm] = useState<SwitchForm>(EMPTY)
 
-  function field(key) {
-    return (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+  function field(key: keyof SwitchForm) {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }))
   }
 
   function saveSwitch() {
@@ -31,7 +39,7 @@ export default function SwitchHelper({ state, update }) {
     toast('State saved — go switch tasks')
   }
 
-  function deleteSwitch(id) {
+  function deleteSwitch(id: number) {
     update((s) => ({ ...s, switches: s.switches.filter((x) => x.id !== id) }))
   }
 
@@ -108,8 +116,8 @@ export default function SwitchHelper({ state, update }) {
           >
             Saved States
           </div>
-          {state.switches.slice(0, 5).map((s) => (
-            <div key={s.id} className="switch-box" style={{ marginBottom: 10 }}>
+          {state.switches.slice(0, 5).map((sw) => (
+            <div key={sw.id} className="switch-box" style={{ marginBottom: 10 }}>
               <div
                 style={{
                   display: 'flex',
@@ -126,7 +134,7 @@ export default function SwitchHelper({ state, update }) {
                     fontWeight: 700,
                   }}
                 >
-                  {s.task}
+                  {sw.task}
                 </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <span
@@ -136,14 +144,14 @@ export default function SwitchHelper({ state, update }) {
                       color: 'var(--muted)',
                     }}
                   >
-                    {s.time}
+                    {sw.time}
                   </span>
-                  <button className="delete-btn" onClick={() => deleteSwitch(s.id)}>
+                  <button className="delete-btn" onClick={() => deleteSwitch(sw.id)}>
                     ×
                   </button>
                 </div>
               </div>
-              {s.state && (
+              {sw.state && (
                 <div
                   style={{
                     fontFamily: "'Space Mono', monospace",
@@ -152,12 +160,12 @@ export default function SwitchHelper({ state, update }) {
                     marginBottom: 6,
                   }}
                 >
-                  {s.state}
+                  {sw.state}
                 </div>
               )}
               <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11 }}>
                 <span style={{ color: 'var(--accent)' }}>→ next: </span>
-                <span style={{ color: 'var(--text)' }}>{s.next}</span>
+                <span style={{ color: 'var(--text)' }}>{sw.next}</span>
               </div>
             </div>
           ))}

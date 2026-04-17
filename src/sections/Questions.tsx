@@ -1,13 +1,19 @@
 import { useState } from 'react'
 import { useToast } from '../components/Toast'
 import { exportQuestions, downloadMd } from '../utils/markdown'
+import type { SectionProps } from '../types'
 
-const EMPTY = { text: '', context: '' }
+interface QuestionForm {
+  text: string
+  context: string
+}
 
-export default function Questions({ state, update }) {
+const EMPTY: QuestionForm = { text: '', context: '' }
+
+export default function Questions({ state, update }: SectionProps) {
   const toast = useToast()
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState(EMPTY)
+  const [form, setForm] = useState<QuestionForm>(EMPTY)
 
   function addQuestion() {
     if (!form.text.trim()) return toast('Add a question', true)
@@ -23,14 +29,14 @@ export default function Questions({ state, update }) {
     toast('Question logged')
   }
 
-  function markAsked(id) {
+  function markAsked(id: number) {
     update((s) => ({
       ...s,
       questions: s.questions.map((q) => (q.id === id ? { ...q, asked: !q.asked } : q)),
     }))
   }
 
-  function deleteQ(id) {
+  function deleteQ(id: number) {
     update((s) => ({ ...s, questions: s.questions.filter((q) => q.id !== id) }))
   }
 

@@ -1,15 +1,25 @@
 import { useState } from 'react'
 import { useToast } from '../components/Toast'
 import { exportLoops, downloadMd } from '../utils/markdown'
+import type { SectionProps, Loop } from '../types'
 
-const EMPTY_FORM = { title: '', status: 'active', blocker: '', next: '' }
+interface LoopForm {
+  title: string
+  status: Loop['status']
+  blocker: string
+  next: string
+}
 
-export default function OpenLoops({ state, update }) {
+const EMPTY_FORM: LoopForm = { title: '', status: 'active', blocker: '', next: '' }
+
+type FilterValue = 'all' | 'done' | Loop['status']
+
+export default function OpenLoops({ state, update }: SectionProps) {
   const toast = useToast()
   const [showForm, setShowForm] = useState(false)
-  const [filter, setFilter] = useState('all')
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [expanded, setExpanded] = useState(new Set())
+  const [filter, setFilter] = useState<FilterValue>('all')
+  const [form, setForm] = useState<LoopForm>(EMPTY_FORM)
+  const [expanded, setExpanded] = useState<Set<number>>(new Set())
 
   const open = state.loops.filter((l) => !l.done)
 
@@ -36,18 +46,18 @@ export default function OpenLoops({ state, update }) {
     toast('Loop added')
   }
 
-  function toggleDone(id) {
+  function toggleDone(id: number) {
     update((s) => ({
       ...s,
       loops: s.loops.map((l) => (l.id === id ? { ...l, done: !l.done } : l)),
     }))
   }
 
-  function deleteLoop(id) {
+  function deleteLoop(id: number) {
     update((s) => ({ ...s, loops: s.loops.filter((l) => l.id !== id) }))
   }
 
-  function toggleExpanded(id) {
+  function toggleExpanded(id: number) {
     setExpanded((prev) => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
@@ -55,12 +65,13 @@ export default function OpenLoops({ state, update }) {
     })
   }
 
-  function field(key) {
-    return (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
+  function field(key: keyof LoopForm) {
+    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setForm((f) => ({ ...f, [key]: e.target.value }))
   }
 
   function handleExport() {
-    downloadMd(exportLoops(state.loops), `loops-${today()}.md`)
+    downloadMd(exportLoops(state.loops), `loops-${new Date().toISOString().slice(0, 10)}.md`)
     toast('Exported loops.md')
   }
 
@@ -160,7 +171,7 @@ export default function OpenLoops({ state, update }) {
       )}
 
       <div className="filter-bar">
-        {['all', 'active', 'blocked', 'waiting', 'done'].map((f) => (
+        {(['all', 'active', 'blocked', 'waiting', 'done'] as FilterValue[]).map((f) => (
           <button
             key={f}
             className={`filter-btn${filter === f ? ' active' : ''}`}
@@ -220,8 +231,4 @@ export default function OpenLoops({ state, update }) {
       )}
     </div>
   )
-}
-
-function today() {
-  return new Date().toISOString().slice(0, 10)
 }

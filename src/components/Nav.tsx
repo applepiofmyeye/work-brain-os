@@ -1,4 +1,19 @@
-const ITEMS = [
+export type TabId = 'loops' | 'questions' | 'context' | 'log' | 'switch'
+
+interface NavItem {
+  id: TabId
+  label: string
+  hasBadge?: boolean
+}
+
+interface NavProps {
+  active: TabId
+  onChange: (tab: TabId) => void
+  loopCount: number
+  questionCount: number
+}
+
+const ITEMS: NavItem[] = [
   { id: 'loops', label: 'Open Loops', hasBadge: true },
   { id: 'questions', label: 'Questions', hasBadge: true },
   { id: 'context', label: 'Context' },
@@ -6,8 +21,8 @@ const ITEMS = [
   { id: 'switch', label: 'Switch Helper' },
 ]
 
-export default function Nav({ active, onChange, loopCount, questionCount }) {
-  const badges = { loops: loopCount, questions: questionCount }
+export default function Nav({ active, onChange, loopCount, questionCount }: NavProps) {
+  const badges: Record<string, number> = { loops: loopCount, questions: questionCount }
 
   return (
     <nav>
@@ -20,9 +35,7 @@ export default function Nav({ active, onChange, loopCount, questionCount }) {
         >
           <div className="dot" />
           {item.label}
-          {item.hasBadge && (
-            <span className="badge">{badges[item.id]}</span>
-          )}
+          {item.hasBadge && <span className="badge">{badges[item.id]}</span>}
         </div>
       ))}
     </nav>

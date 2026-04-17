@@ -1,7 +1,9 @@
-const stamp = () =>
+import type { Loop, Question, LogEntry, AppState } from '../types'
+
+const stamp = (): string =>
   new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 
-export function exportLoops(loops) {
+export function exportLoops(loops: Loop[]): string {
   const open = loops.filter((l) => !l.done)
   const done = loops.filter((l) => l.done)
 
@@ -12,7 +14,7 @@ export function exportLoops(loops) {
   md += `| Waiting | ${open.filter((l) => l.status === 'waiting').length} |\n`
   md += `| Done | ${done.length} |\n\n`
 
-  for (const status of ['active', 'blocked', 'waiting']) {
+  for (const status of ['active', 'blocked', 'waiting'] as const) {
     const items = open.filter((l) => l.status === status)
     if (!items.length) continue
     md += `## ${status[0].toUpperCase() + status.slice(1)}\n`
@@ -34,7 +36,7 @@ export function exportLoops(loops) {
   return md
 }
 
-export function exportQuestions(questions) {
+export function exportQuestions(questions: Question[]): string {
   let md = `# Questions\n_${stamp()}_\n\n`
 
   const open = questions.filter((q) => !q.asked)
@@ -59,7 +61,7 @@ export function exportQuestions(questions) {
   return md
 }
 
-export function exportLog(log) {
+export function exportLog(log: LogEntry[]): string {
   let md = `# Daily Log\n_${stamp()}_\n\n`
 
   if (!log.length) return md + '_No entries yet._\n'
@@ -74,11 +76,11 @@ export function exportLog(log) {
   return md
 }
 
-export function exportNotes(notes) {
+export function exportNotes(notes: string): string {
   return `# Context & Notes\n_${stamp()}_\n\n${notes || '_No notes yet._'}\n`
 }
 
-export function exportAll(state) {
+export function exportAll(state: AppState): string {
   return [
     exportLoops(state.loops),
     '---\n\n',
@@ -90,7 +92,7 @@ export function exportAll(state) {
   ].join('')
 }
 
-export function downloadMd(content, filename) {
+export function downloadMd(content: string, filename: string): void {
   const blob = new Blob([content], { type: 'text/markdown' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

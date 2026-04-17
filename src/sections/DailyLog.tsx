@@ -1,13 +1,22 @@
 import { useState } from 'react'
 import { useToast } from '../components/Toast'
 import { exportLog, downloadMd } from '../utils/markdown'
+import type { SectionProps, LogEntry } from '../types'
 
-function todayKey() {
+function todayKey(): string {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-function LogEntry({ entry, isOpen, onToggle, onSave, onDelete }) {
+interface LogEntryProps {
+  entry: LogEntry
+  isOpen: boolean
+  onToggle: () => void
+  onSave: (date: string, today: string, tomorrow: string) => void
+  onDelete: (date: string) => void
+}
+
+function LogEntryRow({ entry, isOpen, onToggle, onSave, onDelete }: LogEntryProps) {
   const [today, setToday] = useState(entry.today)
   const [tomorrow, setTomorrow] = useState(entry.tomorrow)
   const preview = entry.today
@@ -51,9 +60,9 @@ function LogEntry({ entry, isOpen, onToggle, onSave, onDelete }) {
   )
 }
 
-export default function DailyLog({ state, update }) {
+export default function DailyLog({ state, update }: SectionProps) {
   const toast = useToast()
-  const [openDates, setOpenDates] = useState(new Set())
+  const [openDates, setOpenDates] = useState<Set<string>>(new Set())
 
   function addToday() {
     const key = todayKey()
@@ -66,7 +75,7 @@ export default function DailyLog({ state, update }) {
     toast('Log entry added')
   }
 
-  function toggleDate(date) {
+  function toggleDate(date: string) {
     setOpenDates((prev) => {
       const next = new Set(prev)
       next.has(date) ? next.delete(date) : next.add(date)
@@ -74,7 +83,7 @@ export default function DailyLog({ state, update }) {
     })
   }
 
-  function saveEntry(date, today, tomorrow) {
+  function saveEntry(date: string, today: string, tomorrow: string) {
     update((s) => ({
       ...s,
       log: s.log.map((l) => (l.date === date ? { ...l, today, tomorrow } : l)),
@@ -82,7 +91,7 @@ export default function DailyLog({ state, update }) {
     toast('Log saved')
   }
 
-  function deleteEntry(date) {
+  function deleteEntry(date: string) {
     update((s) => ({ ...s, log: s.log.filter((l) => l.date !== date) }))
   }
 
@@ -115,7 +124,7 @@ export default function DailyLog({ state, update }) {
         </div>
       ) : (
         state.log.map((entry) => (
-          <LogEntry
+          <LogEntryRow
             key={entry.date}
             entry={entry}
             isOpen={openDates.has(entry.date)}

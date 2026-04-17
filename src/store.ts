@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react'
+import type { AppState, UpdateStore } from './types'
 
 const STORAGE_KEY = 'workos'
 
-const SEED = {
+const SEED: AppState = {
   loops: [
     {
       id: 1,
@@ -42,11 +43,11 @@ const SEED = {
   switches: [],
 }
 
-function load() {
+function load(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
-      const parsed = JSON.parse(raw)
+      const parsed = JSON.parse(raw) as Partial<AppState>
       return {
         loops: parsed.loops ?? [],
         questions: parsed.questions ?? [],
@@ -59,12 +60,12 @@ function load() {
   return SEED
 }
 
-export function useStore() {
-  const [state, setState] = useState(load)
+export function useStore(): [AppState, UpdateStore] {
+  const [state, setState] = useState<AppState>(load)
 
-  const update = useCallback((updater) => {
+  const update: UpdateStore = useCallback((updater) => {
     setState((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater }
+      const next = updater(prev)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
       return next
     })

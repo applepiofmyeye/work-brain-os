@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ToastProvider, useToast } from './components/Toast'
 import Header from './components/Header'
-import Nav from './components/Nav'
+import Nav, { type TabId } from './components/Nav'
 import OpenLoops from './sections/OpenLoops'
 import Questions from './sections/Questions'
 import ContextNotes from './sections/ContextNotes'
@@ -11,7 +11,7 @@ import { useStore } from './store'
 import { exportAll, downloadMd } from './utils/markdown'
 
 function AppInner() {
-  const [tab, setTab] = useState('loops')
+  const [tab, setTab] = useState<TabId>('loops')
   const [state, update] = useStore()
   const toast = useToast()
 
@@ -23,7 +23,7 @@ function AppInner() {
     toast('Full export downloaded')
   }
 
-  const sections = {
+  const sections: Record<TabId, React.ReactElement> = {
     loops: <OpenLoops state={state} update={update} />,
     questions: <Questions state={state} update={update} />,
     context: <ContextNotes state={state} update={update} />,
